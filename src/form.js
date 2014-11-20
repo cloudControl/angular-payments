@@ -1,23 +1,23 @@
 angular.module('angularPayments')
 
-.directive('stripeForm', ['$window', '$parse', 'Common', function($window, $parse, Common) {
-    
+.directive('paymentForm', ['$window', '$parse', 'Common', 'angularPaymentsConfig', function($window, $parse, Common, config) {
+
   // directive intercepts form-submission, obtains Stripe's cardToken using stripe.js
-  // and then passes that to callback provided in stripeForm, attribute.
+  // and then passes that to callback provided in paymentForm, attribute.
 
   // data that is sent to stripe is filtered from scope, looking for valid values to
   // send and converting camelCase to snake_case, e.g expMonth -> exp_month
 
 
   // filter valid stripe-values from scope and convert them from camelCase to snake_case
-  _getDataToSend = function(data){
-           
-    var possibleKeys = ['number', 'expMonth', 'expYear', 
-                    'cvc', 'name','addressLine1', 
+    var _getDataToSend = function(data){
+
+    var possibleKeys = ['number', 'expMonth', 'expYear',
+                    'cvc', 'name','addressLine1',
                     'addressLine2', 'addressCity',
                     'addressState', 'addressZip',
                     'addressCountry']
-    
+
     var camelToSnake = function(str){
       return str.replace(/([A-Z])/g, function(m){
         return "_"+m.toLowerCase();
@@ -41,10 +41,6 @@ angular.module('angularPayments')
     restrict: 'A',
     link: function(scope, elem, attr) {
 
-      if(!$window.Stripe){
-          throw 'stripeForm requires that you have stripe.js installed. Include https://js.stripe.com/v2/ into your html.';
-      }
-
       var form = angular.element(elem);
 
       form.bind('submit', function() {
@@ -61,21 +57,21 @@ angular.module('angularPayments')
         var button = form.find('button');
         button.prop('disabled', true);
 
-        if(form.hasClass('ng-valid')) {
-          
+        if (form.hasClass('ng-valid') ||
+            attr.hasOwnProperty("paymentValidateServerSide")) {
 
-          $window.Stripe.createToken(_getDataToSend(scope), function() {
+          config.submit(_getDataToSend(scope), function() {
             var args = arguments;
+
             scope.$apply(function() {
-              scope[attr.stripeForm].apply(scope, args);
+              scope[attr.paymentForm].apply(scope, args);
             });
             button.prop('disabled', false);
-
           });
 
         } else {
           scope.$apply(function() {
-            scope[attr.stripeForm].apply(scope, [400, {error: 'Invalid form submitted.'}]);
+            scope[attr.paymentForm].apply(scope, [400, {error: 'Invalid form submitted.'}]);
           });
           button.prop('disabled', false);
         }
