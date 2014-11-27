@@ -41,17 +41,19 @@ angular.module('angularPayments')
     restrict: 'A',
     link: function(scope, elem, attr) {
 
+      var bindings = scope.payment;
+
       var form = angular.element(elem);
 
       form.bind('submit', function() {
 
-        expMonthUsed = scope.expMonth ? true : false;
-        expYearUsed = scope.expYear ? true : false;
+        expMonthUsed = bindings.expMonth ? true : false;
+        expYearUsed = bindings.expYear ? true : false;
 
         if(!(expMonthUsed && expYearUsed)){
-          exp = Common.parseExpiry(scope.expiry)
-          scope.expMonth = exp.month
-          scope.expYear = exp.year
+          exp = Common.parseExpiry(bindings.expiry)
+          bindings.expMonth = exp.month
+          bindings.expYear = exp.year
         }
 
         var button = form.find('button');
@@ -60,11 +62,12 @@ angular.module('angularPayments')
         if (form.hasClass('ng-valid') ||
             attr.hasOwnProperty("paymentValidateServerSide")) {
 
-          config.submit(_getDataToSend(scope), function() {
-            var args = arguments;
+          config.submit(_getDataToSend(bindings), function() {
+
+            var result = config.normalize_return(arguments);
 
             scope.$apply(function() {
-              scope[attr.paymentForm].apply(scope, args);
+              scope[attr.paymentForm](result);
             });
             button.prop('disabled', false);
           });
