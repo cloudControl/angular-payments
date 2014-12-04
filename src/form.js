@@ -85,4 +85,4 @@ angular.module('angularPayments')
       });
     }
   }
-}])
+}]);
