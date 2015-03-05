@@ -41,11 +41,11 @@ angular.module('angularPayments')
     restrict: 'A',
     link: function(scope, elem, attr) {
 
-      var bindings = scope.payment;
-
       var form = angular.element(elem);
 
       form.bind('submit', function() {
+
+        var bindings = scope.payment;
 
         expMonthUsed = bindings.expMonth ? true : false;
         expYearUsed = bindings.expYear ? true : false;
