@@ -47,6 +47,15 @@ angular.module('angularPayments').provider('angularPaymentsConfig', function () 
                                           return {error: {data: {expiry: "Invalid expiry date"}}};
                                       } else if (error.apierror == "field_invalid_card_cvc") {
                                           return {error: {data: {cvc:    "Invalid CVC value"}}};
+
+                                          // SEPA errors
+
+                                      } else if (error.apierror == "field_invalid_iban") {
+                                          return {error: {data: {iban:    "Invalid IBAN value"}}};
+                                      } else if (error.apierror == "field_invalid_bic") {
+                                          return {error: {data: {bic:    "Invalid BIC value"}}};
+                                      } else if (error.apierror == "field_invalid_account_holder") {
+                                          return {error: {data: {accountholder:    "Invalid account holder"}}};
                                       } else {
                                           return {error: {data: {unknown: error.message}}};
                                       }
